@@ -126,7 +126,6 @@
     <a-scene>
         <a-assets>
             <a-asset-item id="house" src="obj/house/house.dae"></a-asset-item>
-
             <a-mixin id="voxel1" class="voxel" get-texture-type material="src:obj/boombox/BoomBox_baseColor.png;" geometry="primitive: sphere; radius: 0.005;"></a-mixin>
             <a-mixin id="voxel2" class="voxel" get-texture-type  material="src:obj/boombox/BoomBox_occlusionRoughnessMetallic.png;" geometry="primitive: box; height: 0.01; width: 0.01; depth: 0.01;"></a-mixin>
             <a-mixin id="voxel3" class="voxel" get-texture-type material="src:obj/boombox/BoomBox_normal.png;" geometry="primitive: box; height: 0.01; width: 0.01; depth: 0.01;"></a-mixin>
@@ -155,10 +154,18 @@
 
 
         <a-entity id="boom1" class="collidable" boom-texture gltf-model="#boombox1" scale="50 50 50" position="0 3.5 4" rotation="0 180 0">
-            <a-box class="hiddenTextureSelector" mixin="voxel1" visible="false"></a-box>
-            <a-box class="hiddenTextureSelector" mixin="voxel2" visible="false"></a-box>
-            <a-box class="hiddenTextureSelector" mixin="voxel3" visible="false"></a-box>
-            <a-box class="hiddenTextureSelector" mixin="voxel4" visible="false"></a-box>
+            <a-entity class="hiddenTextureSelector" mixin="voxel1" visible="false">
+              <a-animation attribute="rotation" dur="3000" to="0 360 0" repeat="indifinite" easing="linear"></a-animation>
+            </a-entity>
+            <a-box class="hiddenTextureSelector" mixin="voxel2" visible="false">
+              <a-animation attribute="rotation" dur="3000" to="0 360 0" repeat="indifinite" easing="linear"></a-animation>
+            </a-box>
+            <a-box class="hiddenTextureSelector" mixin="voxel3" visible="false">
+              <a-animation attribute="rotation" dur="3000" to="0 360 0" repeat="indifinite" easing="linear"></a-animation>
+            </a-box>
+            <a-entity class="hiddenTextureSelector" mixin="voxel4" visible="false">
+              <a-animation attribute="rotation" dur="3000" to="0 360 0" repeat="indifinite" easing="linear"></a-animation>
+            </a-entity>
         </a-entity>
 
     </a-scene>
