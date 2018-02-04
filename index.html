@@ -1,0 +1,150 @@
+<html>
+<head>
+    <script src="https://rawgit.com/aframevr/aframe/3035117/dist/aframe-master.min.js"></script>
+
+    <script>
+    AFRAME.registerComponent("telerport-point", {
+        schema: {
+            x: {type: "number", default: 0},
+            y: {type: "number", default: 0},
+            z: {type: "number", default: 0},
+        },
+        init:function() {
+            var el = this.el;
+            var data = this.data;
+            var target = document.querySelector("#lookAtCylinder");
+            el.addEventListener('mousedown', function() {
+                var pos = el.getAttribute("position");
+                var cam = document.querySelector("a-camera");
+                cam.setAttribute("position", {x: pos.x, y: 5, z: pos.z})
+
+                var camrot = cam.getAttribute("rotation");
+            })
+        }
+    })
+
+    var material = null;
+    var objectToTexture = null;
+    var textures = [];
+
+    function setTextures() {
+      textures.push('obj/boombox/BoomBox_baseColor.png');
+      textures.push('obj/boombox/BoomBox_occlusionRoughnessMetallic.png');
+      textures.push('obj/boombox/BoomBox_normal.png');
+      textures.push('obj/boombox/BoomBox_emissive.png');
+    }
+
+    AFRAME.registerComponent("boom-texture", {
+      schema: {
+        textures: {default: []},
+      },
+
+      init: function() {
+        var el = this.el;
+        var hiddenTextureSelector = document.querySelectorAll(".hiddenTextureSelector");
+        objectToTexture = this.el;
+
+        setTextures();
+
+        el.addEventListener('model-loaded', function (e) {
+          e.detail.model.traverse(function(node) {
+            if (node.isMesh) {
+              material = node.material.map ;
+            }
+          });
+        });
+
+        this.el.addEventListener("mousedown", function() {
+          var xPos;
+          var tLength = textures.length;
+          for(var i = 0; i < tLength; i++) {
+            xPos = -0.001*(tLength+1)*tLength + 0.0002/0.015 * i;
+            hiddenTextureSelector[i].setAttribute("position", {x: xPos, y: 0.015, z: 0});
+            hiddenTextureSelector[i].setAttribute("visible", true);
+          }
+        });
+
+        this.el.addEventListener("mouseup", function() {
+            if(textures.length != 0){
+                for(var i = 0; i < textures.length; i++) {
+                  hiddenTextureSelector[i].setAttribute("visible", false);
+                }
+            }
+          });
+      },
+    });
+
+    AFRAME.registerComponent("get-texture-type", {
+      init: function() {
+        var el = this.el;
+        var voxels = [];
+        voxel = document.querySelectorAll(".voxel");
+
+        el.addEventListener('model-loaded', function (e) {
+          e.detail.model.traverse(function(node) {
+            if (node.isMesh) {
+              material = node.material.map ;
+            }
+          });
+        });
+
+        this.el.addEventListener("mouseup", function(){
+          var currentImg = material.image;
+          var selectedTexture = el.components.material.data.src;
+          for(var i = 0; i < textures.length; i++) {
+            if(selectedTexture == textures[i]) {
+              currentImg.setAttribute("src", textures[i]);
+            }
+          }
+        });
+
+      }
+
+    });
+
+    </script>
+</head>
+
+<body>
+    <a-scene>
+        <a-assets>
+            <a-asset-item id="house" src="obj/house/house.dae"></a-asset-item>
+
+            <a-mixin id="voxel1" class="voxel" get-texture-type material="src:obj/boombox/BoomBox_baseColor.png;" geometry="primitive: sphere; radius: 0.005;"></a-mixin>
+            <a-mixin id="voxel2" class="voxel" get-texture-type  material="src:obj/boombox/BoomBox_occlusionRoughnessMetallic.png;" geometry="primitive: box; height: 0.01; width: 0.01; depth: 0.01;"></a-mixin>
+            <a-mixin id="voxel3" class="voxel" get-texture-type material="src:obj/boombox/BoomBox_normal.png;" geometry="primitive: box; height: 0.01; width: 0.01; depth: 0.01;"></a-mixin>
+            <a-mixin id="voxel4" class="voxel" get-texture-type material="src:obj/boombox/BoomBox_emissive.png;" geometry="primitive: sphere; radius: 0.005;"></a-mixin>
+            <a-asset-item id="boombox1" src="obj/boombox/BoomBox.gltf"></a-asset-item>
+        </a-assets>
+
+        <a-entity id="camera-wrapper">
+            <a-camera position="0 3 0"  wasd-controls="acceleration: 150">
+                <a-cursor></a-cursor>
+            </a-camera>
+        </a-entity>
+
+
+        <a-entity collada-model="#house" position="0 0 0"></a-entity>
+
+        <a-cylinder class="moveCamera" telerport-point color="yellow" position="1 1 2" radius="0.5" height="0.01"></a-cylinder>
+        <!--fire -->
+        <a-cylinder class="moveCamera" telerport-point color="yellow" position="-9 1 2" radius="0.5" height="0.01"></a-cylinder>
+        <!-- sleeping room door -->
+        <a-cylinder class="moveCamera" telerport-point color="yellow" position="-12 1 2" radius="0.5" height="0.01"></a-cylinder>
+        <!-- tv room door -->
+        <a-cylinder class="moveCamera" telerport-point color="yellow" position="-2 1 2" radius="0.5" height="0.01"></a-cylinder>
+        <!-- tv room -->
+        <a-cylinder class="moveCamera" telerport-point color="yellow" position="-2 1 -4" radius="0.5" height="0.01"></a-cylinder>
+
+
+        <a-entity id="boom1" boom-texture gltf-model="#boombox1" scale="50 50 50" position="0 3.5 4" rotation="0 180 0">
+            <a-box class="hiddenTextureSelector" mixin="voxel1" visible="false"></a-box>
+            <a-box class="hiddenTextureSelector" mixin="voxel2" visible="false"></a-box>
+            <a-box class="hiddenTextureSelector" mixin="voxel3" visible="false"></a-box>
+            <a-box class="hiddenTextureSelector" mixin="voxel4" visible="false"></a-box>
+        </a-entity>
+
+    </a-scene>
+
+</body>
+</html>
