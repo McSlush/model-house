@@ -119,6 +119,31 @@
       }
     });
 
+    AFRAME.registerComponent("add-mixin", {
+      schema: {
+        targetTeleportPoint: {default: "string"},
+      },
+      init: function() {
+
+        var el = this.el;
+        var data = this.data;
+        var animation = document.createElement("a-animation");
+
+        el.addEventListener("click", function() {
+          var animation = document.createElement("a-animation");
+          animation.setAttribute("mixin", data.targetTeleportPoint)
+
+          var cam = document.querySelector("[camera]");
+          var camPos = Object.values(cam.getAttribute("position"));
+          var camPosString = camPos[0] + " " + camPos[1] + " " + camPos[2];
+          console.log(camPos[0])
+          animation.setAttribute("from", camPosString)
+          cam.appendChild(animation)
+        });
+
+      }
+    });
+
     </script>
 </head>
 
@@ -126,11 +151,18 @@
     <a-scene>
         <a-assets>
             <a-asset-item id="house" src="obj/house/house.dae"></a-asset-item>
+            <a-asset-item id="boombox1" src="obj/boombox/BoomBox.gltf"></a-asset-item>
+
+            <a-mixin id="move-mixin1" attribute="position" from="0 0 0" to="1 5 2"></a-mixin>
+            <a-mixin id="move-mixin2" attribute="position" from="0 0 0" to="-9 5 2"></a-mixin>
+            <a-mixin id="move-mixin3" attribute="position" from="0 0 0" to="-12 5 2"></a-mixin>
+            <a-mixin id="move-mixin4" attribute="position" from="0 0 0" to="-2 5 2"></a-mixin>
+            <a-mixin id="move-mixin5" attribute="position" from="0 0 0" to="-2 5 -4"></a-mixin>
+
             <a-mixin id="voxel1" class="voxel" get-texture-type material="src:obj/boombox/BoomBox_baseColor.png;" geometry="primitive: sphere; radius: 0.005;"></a-mixin>
-            <a-mixin id="voxel2" class="voxel" get-texture-type  material="src:obj/boombox/BoomBox_occlusionRoughnessMetallic.png;" geometry="primitive: box; height: 0.01; width: 0.01; depth: 0.01;"></a-mixin>
+            <a-mixin id="voxel2" class="voxel" get-texture-type material="src:obj/boombox/BoomBox_occlusionRoughnessMetallic.png;" geometry="primitive: box; height: 0.01; width: 0.01; depth: 0.01;"></a-mixin>
             <a-mixin id="voxel3" class="voxel" get-texture-type material="src:obj/boombox/BoomBox_normal.png;" geometry="primitive: box; height: 0.01; width: 0.01; depth: 0.01;"></a-mixin>
             <a-mixin id="voxel4" class="voxel" get-texture-type material="src:obj/boombox/BoomBox_emissive.png;" geometry="primitive: sphere; radius: 0.005;"></a-mixin>
-            <a-asset-item id="boombox1" src="obj/boombox/BoomBox.gltf"></a-asset-item>
         </a-assets>
 
         <a-entity id="camera-wrapper">
@@ -142,15 +174,15 @@
 
         <a-entity collada-model="#house" position="0 0 0"></a-entity>
 
-        <a-cylinder class="moveCamera collidable" telerport-point color="yellow" position="1 1 2" radius="0.5" height="0.01"></a-cylinder>
+        <a-cylinder class="moveCamera collidable" add-mixin="targetTeleportPoint: move-mixin1" color="yellow" position="1 1 2" radius="0.5" height="0.01"></a-cylinder>
         <!--fire -->
-        <a-cylinder class="moveCamera collidable" telerport-point color="yellow" position="-9 1 2" radius="0.5" height="0.01"></a-cylinder>
+        <a-cylinder class="moveCamera collidable" add-mixin="targetTeleportPoint: move-mixin2" color="yellow" position="-9 1 2" radius="0.5" height="0.01"></a-cylinder>
         <!-- sleeping room door -->
-        <a-cylinder class="moveCamera collidable" telerport-point color="yellow" position="-12 1 2" radius="0.5" height="0.01"></a-cylinder>
+        <a-cylinder class="moveCamera collidable" add-mixin="targetTeleportPoint: move-mixin3" color="yellow" position="-12 1 2" radius="0.5" height="0.01"></a-cylinder>
         <!-- tv room door -->
-        <a-cylinder class="moveCamera collidable" telerport-point color="yellow" position="-2 1 2" radius="0.5" height="0.01"></a-cylinder>
+        <a-cylinder class="moveCamera collidable" add-mixin="targetTeleportPoint: move-mixin4" color="yellow" position="-2 1 2" radius="0.5" height="0.01"></a-cylinder>
         <!-- tv room -->
-        <a-cylinder class="moveCamera collidable" telerport-point color="yellow" position="-2 1 -4" radius="0.5" height="0.01"></a-cylinder>
+        <a-cylinder class="moveCamera collidable" add-mixin="targetTeleportPoint: move-mixin5" color="yellow" position="-2 1 -4" radius="0.5" height="0.01"></a-cylinder>
 
 
         <a-entity id="boom1" class="collidable" boom-texture gltf-model="#boombox1" scale="50 50 50" position="0 3.5 4" rotation="0 180 0">
