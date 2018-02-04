@@ -58,7 +58,7 @@
           var xPos;
           var tLength = textures.length;
           for(var i = 0; i < tLength; i++) {
-            xPos = -0.001*(tLength+1)*tLength + 0.0002/0.015 * i;
+            xPos = -0.0015*(tLength+1)*tLength + 0.0003/0.015 * i;
             hiddenTextureSelector[i].setAttribute("position", {x: xPos, y: 0.015, z: 0});
             hiddenTextureSelector[i].setAttribute("visible", true);
           }
@@ -148,7 +148,7 @@
 </head>
 
 <body>
-    <a-scene>
+    <a-scene stats>
         <a-assets>
             <a-asset-item id="house" src="obj/house/house.dae"></a-asset-item>
             <a-asset-item id="boombox1" src="obj/boombox/BoomBox.gltf"></a-asset-item>
