@@ -2,32 +2,31 @@
 <head>
     <script src="https://rawgit.com/aframevr/aframe/3035117/dist/aframe-master.min.js"></script>
     <script src="https://cdn.rawgit.com/tizzle/aframe-orbit-controls-component/master/dist/aframe-orbit-controls-component.min.js"></script>
-    <script src="https://rawgit.com/mayognaise/aframe-mouse-cursor-component/master/dist/aframe-mouse-cursor-component.min.js"></script>
 
     <script>
 
     var material = null;
     var objectToTexture = null;
-    var textures = [];
+    var boomTextures = [];
 
-    function setTextures() {
-      textures.push('obj/boombox/BoomBox_baseColor.png');
-      textures.push('obj/boombox/BoomBox_occlusionRoughnessMetallic.png');
-      textures.push('obj/boombox/BoomBox_normal.png');
-      textures.push('obj/boombox/BoomBox_emissive.png');
+    function setBoomTextures() {
+      boomTextures.push('obj/boombox/BoomBox_baseColor.png');
+      boomTextures.push('obj/boombox/BoomBox_occlusionRoughnessMetallic.png');
+      boomTextures.push('obj/boombox/BoomBox_normal.png');
+      boomTextures.push('obj/boombox/BoomBox_emissive.png');
     }
 
     AFRAME.registerComponent("boom-texture", {
       schema: {
-        textures: {default: []},
+        boomTextures: {default: []},
       },
 
       init: function() {
         var el = this.el;
-        var hiddenTextureSelector = document.querySelectorAll(".hiddenTextureSelector");
+        var hiddenBoomTextureSelector = document.querySelectorAll(".hiddenBoomTextureSelector");
         objectToTexture = this.el;
 
-        setTextures();
+        setBoomTextures();
 
         el.addEventListener('model-loaded', function (e) {
           e.detail.model.traverse(function(node) {
@@ -39,18 +38,18 @@
 
         this.el.addEventListener("mousedown", function() {
           var xPos;
-          var tLength = textures.length;
+          var tLength = boomTextures.length;
           for(var i = 0; i < tLength; i++) {
             xPos = -0.0015*(tLength+1)*tLength + 0.0003/0.015 * i;
-            hiddenTextureSelector[i].setAttribute("position", {x: xPos, y: 0.015, z: 0});
-            hiddenTextureSelector[i].setAttribute("visible", true);
+            hiddenBoomTextureSelector[i].setAttribute("position", {x: xPos, y: 0.015, z: 0});
+            hiddenBoomTextureSelector[i].setAttribute("visible", true);
           }
         });
 
         this.el.addEventListener("mouseup", function() {
-            if(textures.length != 0){
-                for(var i = 0; i < textures.length; i++) {
-                  hiddenTextureSelector[i].setAttribute("visible", false);
+            if(boomTextures.length != 0){
+                for(var i = 0; i < boomTextures.length; i++) {
+                  hiddenBoomTextureSelector[i].setAttribute("visible", false);
                 }
             }
           });
@@ -74,9 +73,9 @@
         this.el.addEventListener("mouseup", function(){
           var currentImg = material.image;
           var selectedTexture = el.components.material.data.src;
-          for(var i = 0; i < textures.length; i++) {
-            if(selectedTexture == textures[i]) {
-              currentImg.setAttribute("src", textures[i]);
+          for(var i = 0; i < boomTextures.length; i++) {
+            if(selectedTexture == boomTextures[i]) {
+              currentImg.setAttribute("src", boomTextures[i]);
             }
           }
         });
@@ -110,7 +109,6 @@
       init: function() {
         var el = this.el;
         var data = this.data;
-        var scene = this.el.sceneEl;
 
         el.addEventListener("click", function() {
           var animation = document.createElement("a-animation");
@@ -133,16 +131,18 @@
         init:function() {
             var el = this.el;
             var data = this.data;
-            el.addEventListener('mousedown', function() {
+            var scene = this.el.sceneEl;
+            el.addEventListener("click", function() {
                 var cam = document.querySelector('#cam2');
-                var hud = document.createElement("a-plane");
+                var avocadoHud = document.querySelector("#temp");
+                avocadoHud.setAttribute("visible", true);
+
+                cam.setAttribute("cursor", "rayOrigin", "mouse");
+                cam.setAttribute("raycaster", "objects", ".avocadoable");
                 document.querySelector('#cursor1').setAttribute('visible', false);
 
-                hud.setAttribute("mixin", "cam2Hud-mixin");
-                hud.setAttribute("id", "cam2Hud");
-                hud.setAttribute("interactive-hud", "");
+                cam.appendChild(avocadoHud);
 
-                cam.appendChild(hud);
                 cam.setAttribute('camera', 'active', true);
             })
 
@@ -153,27 +153,32 @@
         init:function() {
             var el = this.el;
             var data = this.data;
+            var scene = this.el.sceneEl;
 
             window.addEventListener("keydown", function(e){
                 if(e.keyCode === 27) { // esc
-                    document.querySelector('#cursor1').setAttribute('visible', true);
                     var cam1 = document.querySelector('#cam1');
-                    var cam2Hud = document.querySelector("#cam2Hud");
-                    cam2Hud.parentNode.removeChild(cam2Hud);
+
+                    scene.removeAttribute("cursor");
+
+                    document.querySelector('#cursor1').setAttribute('visible', true);
                     cam1.setAttribute('camera', 'active', true);
                 }
             })
         }
     });
 
-        AFRAME.registerComponent("interactive-hud", {
-            init: function() {
-                document.querySelector('#cam2Hud').addEventListener('loaded', function () {
-                    this.setAttribute('mixin', 'avocado-mixin');
-                    console.log('I was loaded!');
-                });
-            }
-        })
+    AFRAME.registerComponent("interactive-hud", {
+        init: function() {
+            var el = this.el;
+
+            el.addEventListener("click", function() {
+
+                console.log(el)
+                console.log("test")
+            })
+        }
+    })
 
 
     </script>
@@ -195,7 +200,7 @@
             <a-mixin id="move-mixin4" dur="2000" attribute="position" from="0 0 0" to="-2 150 2"></a-mixin>
             <a-mixin id="move-mixin5" dur="2000" attribute="position" from="0 0 0" to="-2 5 -4"></a-mixin>
 
-            <a-mixin id="avocado-mixin" material="src:obj/avocado/Avocado_normal.png;"></a-mixin>
+            <!--<a-mixin id="avocado-mixin2" material="src:obj/avocado/Avocado_roughnessMetallic.png;" geometry="primitive: sphere; radius: 0.1" position="0 -0.5 -1"></a-mixin>-->
 
             <a-mixin id="boombox-mixin1" class="voxel" get-texture-type material="src:obj/boombox/BoomBox_baseColor.png;" geometry="primitive: sphere; radius: 0.005;"></a-mixin>
             <a-mixin id="boombox-mixin2" class="voxel" get-texture-type material="src:obj/boombox/BoomBox_occlusionRoughnessMetallic.png;" geometry="primitive: box; height: 0.01; width: 0.01; depth: 0.01;"></a-mixin>
@@ -203,37 +208,43 @@
             <a-mixin id="boombox-mixin4" class="voxel" get-texture-type material="src:obj/boombox/BoomBox_emissive.png;" geometry="primitive: sphere; radius: 0.005;"></a-mixin>
         </a-assets>
 
-        <a-camera id="cam1" change-to-1-camera position="0 150 0" rotation="0 90 0" wasd-controls="acceleration: 5000">
-            <a-cursor id="cursor1" raycaster="objects: .collidable"  cursor-color></a-cursor>
+        <a-camera id="cam1" change-to-1-camera position="0 150 0" rotation="0 0 0" wasd-controls="acceleration: 5000">
+            <a-cursor id="cursor1" raycaster="objects: .collidable" cursor-color></a-cursor>
         </a-camera>
 
         <a-camera id="cam2" wasd-controls-enabled="false"
+            raycaster="objects: .collidable"
             maxPolarAngle="90"
-           orbit-controls="
-               autoRotate: true;
-               target: #avocado;
-               enableDamping: true;
-               dampingFactor: 0.25;
-               rotateSpeed:0.14;
-               minDistance:25;
-               maxDistance:50;"
-           mouse-cursor="">
+            orbit-controls="
+                autoRotate: false;
+                target: #avocado;
+                enableDamping: true;
+                dampingFactor: 0.25;
+                rotateSpeed:0.14;
+                minDistance:25;
+                maxDistance:50;
+                enablePan:false;
+                maxPolarAngle:1.5;"
+                mouse-cursor="">
         </a-camera>
+
+        <a-sphere id="temp" interactive-hud class=" avocadoable" visible="false" material="src:obj/avocado/Avocado_normal.png;" geometry="radius: 0.1;" position="-1 -0.5 -1">
+        </a-sphere>
 
         <a-entity id="house" gltf-model="#house-asset"></a-entity>
         <a-entity id="avocado" class="collidable" change-to-2-camera gltf-model="#avocado-asset"  scale="250 250 250" position="72 77 -300"></a-entity>
 
         <a-entity id="boom1" class="collidable" gltf-model="#boombox-asset" boom-texture scale="2500 2500 2500" position="-210 115 -217" rotation="0 90 0">
-            <a-entity class="hiddenTextureSelector" mixin="boombox-mixin1" visible="false">
+            <a-entity class="hiddenBoomTextureSelector" mixin="boombox-mixin1" visible="false">
               <a-animation attribute="rotation" dur="3000" to="0 360 0" repeat="indifinite" easing="linear"></a-animation>
             </a-entity>
-            <a-box class="hiddenTextureSelector" mixin="boombox-mixin2" visible="false">
+            <a-box class="hiddenBoomTextureSelector" mixin="boombox-mixin2" visible="false">
               <a-animation attribute="rotation" dur="3000" to="0 360 0" repeat="indifinite" easing="linear"></a-animation>
             </a-box>
-            <a-box class="hiddenTextureSelector" mixin="boombox-mixin3" visible="false">
+            <a-box class="hiddenBoomTextureSelector" mixin="boombox-mixin3" visible="false">
               <a-animation attribute="rotation" dur="3000" to="0 360 0" repeat="indifinite" easing="linear"></a-animation>
             </a-box>
-            <a-entity class="hiddenTextureSelector" mixin="boombox-mixin4" visible="false">
+            <a-entity class="hiddenBoomTextureSelector" mixin="boombox-mixin4" visible="false">
               <a-animation attribute="rotation" dur="3000" to="0 360 0" repeat="indifinite" easing="linear"></a-animation>
             </a-entity>
         </a-entity>
